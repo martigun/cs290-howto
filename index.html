@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Spotify API Tutorial</title>
+
+	<link rel="stylesheet" href="styles.css">
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" 
+		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" 
+		integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" 
+		crossorigin="anonymous">
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" 
+			data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Spotify API Tutorial</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+			<li><a href="http://52.88.255.17:3200/">Part 1</a></li>
+            <li><a href="#sect04">Welcome Part 2</a></li>
+			<li><a href="#sect06">Add Support</a></li>
+            <li><a href="#sect08">Albums API</a></li>
+            <li><a href="#sect12">Artist API</a></li>
+            <li><a href="#sect16">Mult Artists API</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="starter-template">
+        <h1 class="myheader">Spotify API Tutorial</h1>
+		<p id="sect04"></p>
+		<br/><br/>
+		<h1>Welcome to Part 2!</h1><br>
+		
+		<p class="lead"> Hello! Welcome to Part 2 of my tutorial to get you up and running with the Spotify Web API. Before starting Part 2, please work your way through <a href="http://52.88.255.17:3200/">Part 1</a> of my tutorial. In Part 1 of the tutorial, we got familiar with the file structure, Node.js, the authentication path, and the Track API. Here are the topics that we'll be covering in Part 2 of this tutorial:</p>
+
+		<ul class="lead">
+			<li>Add to Support Files</li>
+			<li>Albums API Endpoint</li>
+			<li>Get an Artist API Endpoint</li>
+			<li>Get Multiple Artists API Endpoint</li>
+		</ul>
+
+		<p class="lead"> As Part 1 was more about getting you comfortable with the tools and walking you through the authentication process, Part 2 will strictly focus on how to access a few of the different endpoints that are available. After getting comfortable with all of these API endpoints, you should have a solid understanding of how to make your application work with the Spotify API.</p>
+		
+		<p class="lead"> Hopefully you find this guide helpful!</p>
+		
+		<p id="sect06"></p>
+		<br/><br/>
+		<h1>Add to Support Files</h1><br>
+		
+		<p class="lead">Before we jump into adding endpoints, we will need to adjust our helper file <strong>helper.js</strong> and also our html file <strong>index.html</strong>. First, let's add the below code in red below to <strong>index.html</strong></p>
+		
+		<pre><!--index.html-->
+&lt;!doctype html&gt;
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;title&gt;SpotApp&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		&lt;h1&gt;My Spot App&lt;/h1&gt;
+		&lt;button id=&quot;login_btn&quot;&gt;Login&lt;/button&gt;
+		&lt;br/&gt;
+		&lt;button id=&quot;getToken_btn&quot;&gt;Get Token&lt;/button&gt;
+		&lt;br/&gt;
+		&lt;button id=&quot;tracksAPI_btn&quot;&gt;Run Tracks API&lt;/button&gt;
+		<span class="highlighter">&lt;br/&gt;
+		&lt;button id=&quot;albumsAPI_btn&quot;&gt;Run Albums API&lt;/button&gt;</span>
+		<span class="highlighter">&lt;br/&gt;
+		&lt;button id=&quot;artistAPI_btn&quot;&gt;Run Artist API&lt;/button&gt;</span>
+		<span class="highlighter">&lt;br/&gt;
+		&lt;button id=&quot;artistsAPI_btn&quot;&gt;Run Artist(s) API&lt;/button&gt;</span>
+		&lt;hr/&gt;
+		&lt;p&gt;Access Token:&lt;/p&gt;
+		&lt;p id=&quot;accessToken&quot;&gt;&lt;p&gt;
+		&lt;hr/&gt;
+		&lt;script src=&quot;helper.js&quot;&gt;&lt;/script&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+		</pre>
+		<!-- end index.html -->
+		<br/>
+		
+		<p class="lead"> This code simply adds a few buttons so that we can now execute the endpoints that we will set up in this tutorial. Note that until we get our helper file updated and all of our API code written into our <b>server.js</b> files, these buttons will do nothing. Next, we are going to update our helper file, <b>helper.js</b>. Paste the code in red below into the <b>helper.js</b> file:</p>
+
+		<pre><!--helper.js-->
+//Part 1: establish listeners
+document.getElementById("login_btn").addEventListener("click", function(){
+	
+	//direct to login
+	window.location.assign("/login");
+});
+
+document.getElementById("tracksAPI_btn").addEventListener("click", function(){
+	
+	//direct to tracks with token on the end
+	window.location.assign("/tracks/" + getToken());
+});
+
+<span class="highlighter">document.getElementById("albumsAPI_btn").addEventListener("click", function(){
+	
+	//direct to albums with token on the end
+	window.location.assign("/albums/" + getToken());
+});</span>
+
+<span class="highlighter">document.getElementById("artistAPI_btn").addEventListener("click", function(){
+	
+	//direct to albums with token on the end
+	window.location.assign("/artist/" + getToken());
+});</span>
+
+<span class="highlighter">document.getElementById("artistsAPI_btn").addEventListener("click", function(){
+	
+	//direct to albums with token on the end
+	window.location.assign("/artists/" + getToken());
+});</span>
+
+document.getElementById("getToken_btn").addEventListener("click", getToken);
+
+//Part 2: get the access token from the URL
+function getToken(){
+
+	//start with the current URL string
+	var CurrentAccessToken = window.location.href;
+
+	//find #access_token= in the string
+	var string_to_find = "#access_token=";
+
+	//get start_from index
+	var start_from = CurrentAccessToken.search(string_to_find);
+	
+	//only run if #access_token= is found
+	if(start_from > 0){
+		
+		//add length of #access_token= to the start_from index
+		start_from += string_to_find.length;
+
+		//set CurrentAccessToken through the end
+		CurrentAccessToken = CurrentAccessToken.substr(start_from,CurrentAccessToken.length);
+		document.getElementById("accessToken").textContent = CurrentAccessToken;
+		
+		//return the Token
+		return CurrentAccessToken;
+	} else {
+		
+		//if not found, return NULL
+		return NULL;
+	}	
+}
+		</pre>
+		<!-- end helper.js -->
+		<br/>
+		
+		<p class="lead"> The code above adds listeners to the buttons that we created in <b>index.html</b>. For example, the Album API button that we created has the id <strong>albumsAPI_btn</strong>, so we added a listener with the code: <code>document.getElementById("albumsAPI_btn").addEventListener("click",...</code>. Now that we have our <b>helper.js</b> file updated and new controls on our HTML file <b>index.html</b>, we are ready to start adding to our node.js server file <b>server.js</b> the code that will call the different API endpoints that we will demonstrate in this tutorial.</p>
+		
+		<p id="sect08"></p>
+		<br/><br/>
+		<h1>Albums API Endpoint</h1><br>
+		
+		<p class="lead">
+		The first endpoint we are going to add in will be the Albums API Endpoint which is available at <code>/v1/me/albums</code>. Remember that all of the endpoint reference is available <a href="https://developer.spotify.com/web-api/endpoint-reference/">here</a>. Though Spotify's reference is helpful, it does not take you carefully through node.js code (which is why this tutorial is helpful!). First, we will add our needed code to our node.js server file <strong>server.js</strong>, then we will walk through the code, line-by-line to fully understand what is happening. Please paste in the javascript code below immediately after the callback <code>app.get('/tracks/:token'...</code> that we created in Part 1:
+		</p>
+	
+		<pre><!--Albums API-->
+app.get('/albums/:token',function(req,res){
+	
+	//get token from request
+	var access_token = req.params.token;
+	
+	//set up options
+	var options = {
+		url: 'https://api.spotify.com/v1/me/albums?limit=10',
+		headers: { 'Authorization': 'Bearer ' + access_token },
+		json: true
+	};
+	
+	// use the access token to access the Spotify Web API
+	request.get(options, function(error, response, body) {
+		
+		//create variable for album count
+		var album_count = body.items.length;
+		
+		//print 10 track names to console
+		for(var i=0; i < album_count; i++) {
+			
+			//print each item to the console
+			var print_to_console = "Album ID:" + i;
+			print_to_console += " Name: " + body.items[i].album.name;
+			console.log(print_to_console);
+		}
+	});
+	
+	//put token back into browser
+	res.redirect('/#' +
+		querystring.stringify({
+			access_token: access_token
+	}));
+});
+		</pre>
+		</pre>
+		</pre>
+		<!-- end Albums API -->
+		<br/>
+		
+		<p class="lead">
+		Let's work our way through this code! We will see that this code is very similar to the code that we had for the Tracks API back in Part 1 of the tutorial. Our first line of code specifies that this GET command is pointed at the route of <strong>albums</strong> with the code <code>app.get('albums/:token',function(req,res){...</code>. The <strong>:token</strong> parameter of the route is the authentication token that will be passed to the server with the request. Recall that in order to make requests to this API endpoint, we will always need an authentication token. This token is pulled from the request parameters with the line of code <code>var access_token = req.params.token</code>. 
+		</p>
+	
+		<p class="lead">
+		Next, we set up our <strong>options</strong> object, which will be passed to the request with the code <code>var options = {...</code>. This command takes the following parameters: url, headers, and json. We will set the url with the following code: <code>url: 'https://api.spotify.com/v1/me/albums?limit=10'</code>. You'll notice I added <strong>?limit=10</strong> to this request. The reason for this was to reduce the number of records that came back in the request, since this tutorial is just for demonstration purposes (and we don't want to get overloaded on data). Next, we have the <b>headers</b> parameter, where we pass in our authorization token with the code: <code>headers: { 'Authorization': 'Bearer ' + access_token }</code>. Finally we set the parameter <strong>json</strong> to <strong>true</strong>, since we will be passing a json object.
+		</p>
+		
+		<p class="lead">
+		Finally, we get to the request part of the code. We call the request with the code: <code>request.get(options, function(error, response, body) {...</code>. The <strong>options</strong> object is the first argument that is passed in and we already defined this object in the code above. The <strong>body </strong>is where all of the data that this request comes back with will be written to. For purposes of this demonstration, I wrote the code to write back up to the first 10 albums that are in my saved albums list. To do this, I first defined a variable called <strong>album_count</strong> in my code with the code: <code>var album_count = body.items.length</code>. I learned that the body would come back with a array member called <strong>items</strong> by reading the endpoint documentation. In the next section, we will explore how to parse a JSON object to explore the structure that is returned. Then, I simply used the method <strong>length</strong>, which is native to JavaScript to get the length of the <strong>items</strong> array. Now that I have the number of albums, I can use a simple loop to loop through them and print them to the server-side console. Within my loop, I used the code <code>body.items[i].album.name</code> in order to access the name of each album in the items array. To run this code, I started up node.js on <strong>server.js</strong>, then navigated to localhost:3000 in my browser. Next, I clicked <strong>Login</strong> then <strong>Get Token</strong> then <strong>Run Albums API</strong> and got a result to the command prompt that looked like this:  When I run this code, I get the following result in my command prompt:
+		</p>
+		
+		<pre><!--Results Output-->
+C:\nodeprojects\spot>
+C:\nodeprojects\spot>node server.js
+Listening on 3000...
+Album ID:0 Name: 2CELLOS
+Album ID:1 Name: LIVE FROM VATNAGARÐAR
+Album ID:2 Name: My Head Is An Animal
+Album ID:3 Name: Prayer
+Album ID:4 Name: Pitch Perfect Soundtrack (Special Edition)
+		</pre>
+		<!--End Results Output-->
+		<br/>
+		
+		<p class="lead">
+		As you can see from the output, I only have 5 saved albums in Spotify. If you have more than 10, remember that this list will be limited to 10, since we used a limit when we made the request to the API. The last bit of code that we have for accessing this endpoint is the the line <code>res.redirect('/#' + querystring.stringify({access_token: access_token}))</code>, which places the <strong>access_token</strong> back into the browser URL for the next API call to use.
+		</p>
+		
+		<p id="sect12"></p>
+		<br/><br/>
+		<h1>Get an Artist API Endpoint</h1><br>
+		
+		<p class="lead">
+		The next endpoint we are going to add to our application is to get an artist from endpoint <code>/v1/artists/{id}</code>. Since this endpoint is based on having an artist id in hand to pass to the endpoint, instead of just relying on the logged-in user's saved items, we will need to retrieve an artist's ID in order to pass to the endpoint. The first part of this section will discuss how I found an artist ID to use and make suggestions on elegant ways to integrate this process into your application. The second part of this section will be to write the actual code. 
+		</p>
+		
+		<p class="lead"><b>Find an Artist ID</b></p>
+		
+		<p class="lead">
+		In this section, I'm going to walk you through how I found an artist ID for using in this tutorial. The way I went about this was to parse through JSON data that I retrieved using the last endpoint that we set up. In order to not mess with anything that we have already done, I'm going to write "temporary" code in order to get JSON data without messing with what we have already written. Please paste the code below into the file server.js below the callback <code>app.get('/albums/:token',function(req,res){...</code> that we just finished writing above:
+		</p>
+		
+		<pre><!--temp code-->
+app.get('/artist/:token',function(req,res){
+	
+	//get token from request
+	var access_token = req.params.token;
+	
+	//set up options
+	var options = {
+		url: 'https://api.spotify.com/v1/me/albums?limit=10',
+		headers: { 'Authorization': 'Bearer ' + access_token },
+		json: true
+	};
+	
+	// use the access token to access the Spotify Web API
+	request.get(options, function(error, response, body) {
+		
+		//return the console the JSON from album #2
+		console.log(JSON.stringify(body.items[2]));
+	});
+	
+	//put token back into browser
+	res.redirect('/#' +
+		querystring.stringify({
+			access_token: access_token
+	}));
+});
+		</pre>
+		<!--end temp code-->
+		<br/>
+		
+		<p class="lead">
+		In this temporary code, I am merely string to spit out a string that represents the JSON content from one of the albums that I pulled in the Albums API Endpoint. Notice that while the route that this code handles is for artists with <code>app.get('/artist/:token',function(req,res){</code>, the <strong>url</strong> that I am requesting is still pointed toward the Albums API at <code>https://api.spotify.com/v1/me/albums</code>. Since I saw that ID#2 was for the album "My Head Is An Animal", I sought to get all of the JSON data for that album. To accomplish this, I wrote the line of code <code>console.log(JSON.stringify(body.items[2]))</code> in order to send all of the JSON data for album ID#2 to the console. After saving the file <strong>server.js</strong>, I started the server, clicked <strong>Login</strong> then <strong>Get Token</strong> then <strong>Run Artist API</strong> and got a result to the command prompt that looked like this:
+		</p>
+		
+		<pre><!--results-->
+{"added_at":"2016-03-06T20:29:01Z","album":{"album_type":"album","artists":[{"external_urls":{"spotify":"https://open.spotify.com/artist/4dwdTW1Lfiq0cM8nBAqIIz"},"href":"https://api.spotify.com/v1/artists/4dwdTW1Lfiq0cM8nBAqIIz","id":"4dwdTW1Lfiq0cM8nBAqIIz","name":"Of Monsters and Men","type":"artist","uri":"spotify:artist:4dwdTW1Lfiq0cM8nBAqIIz"}],"available_markets"...
+		</pre>
+		<br/><!--end results-->
+		
+		<p class="lead">
+		Since this JSON just printed out to one big string, it is pretty difficult to look at. In order to look at it in a more "readable" format, I used an on-line JSON viewing tool at <strong>http://jsonviewer.stack.hu/</strong>. This tool is great because it allows you to see the entire structure of the JSON in a way that is easy to visualize and understand. I pasted the JSON text into the 'Text' tab and then went to view the JSON object in the 'Viewer' tab. After I had it in the 'Viewer' tab, I expanded the <strong>album</strong> object, then the <strong>artists</strong> array, then the first objected in that array (which was <strong>0</strong>) then I could see the members of that object I wanted to see, namely name and <strong>id</strong>. See the Image below for what the JSON object looked like in the <strong>jsonviewer</strong> site:
+		</p>
+		
+		<!--Online viewer of JSON-->
+		<img src="img02.png"></img>
+		
+		<p class="lead">
+		As you can see, the Spotify internal id for the artist "Of Monsters and Men" is <strong>4dwdTW1Lfiq0cM8nBAqIIz</strong>. So, any time there is a Spotify endpoint API that is requesting an artist ID, this is what it is looking for. For the purposes of demonstration in this tutorial, I am simply going to hard-key this id into my code, but in a live application, you would need to have ID get pulled from Spotify and used by your application in the background dynamically. Perhaps you would write a function to look up the ID on Spotify or keep a datastore of all the relevant IDs that you are using in your application. You could even potentially store the ID temporarily on the client-side within a session, if the use case was ideal.
+		</p>
+		
+		<p class="lead"><b>Get an Artist, Using the ID</b></p>
+		
+		<p class="lead">
+		Now that we have an artist ID that we would like to use, lets communicate to the <code>/v1/artists/{id}</code> that we want all the available info on this particular artist. First, paste the code in the below. Copy it in over the temporary code that we had written for the pulling of the artist ID:
+		</p>
+		
+		<pre><!--artist-->
+app.get('/artist/:token',function(req,res){
+	
+	//get token from request
+	var access_token = req.params.token;
+	
+	//hard-key in the artist id that we want
+	var art_id = '4dwdTW1Lfiq0cM8nBAqIIz';
+	
+	//set up options
+	var options = {
+		url: 'https://api.spotify.com/v1/artists/' + art_id,
+		headers: { 'Authorization': 'Bearer ' + access_token },
+		json: true
+	};
+	
+	// use the access token to access the Spotify Web API
+	request.get(options, function(error, response, body) {
+		
+		console.log("This artist's name is: " + body.name);
+	});
+	
+	//put token back into browser
+	res.redirect('/#' +
+		querystring.stringify({
+			access_token: access_token
+	}));
+});
+		</pre>
+		<br/><!--end artist-->
+		
+		<p class="lead">
+		Let's talk code! The route is very similar to the route that we used for albums, we just replaced <strong>albums</strong> with <strong>artist</strong> in the line of code <code>app.get('/artist/:token',function(req,res){...</code>. Next, we have the <strong>access_token</strong>, just like before. Then, we have the artist id, that we discovered in the section above with the line <code>var art_id = '4dwdTW1Lfiq0cM8nBAqIIz'</code>. We will pass this ID to the GET command for this API endpoint. Next, we set up the <strong>options</strong> object, with our familiar parameters. The big difference here is the <strong>url</strong> parameter, which is now <code>url: 'https://api.spotify.com/v1/artists/' + art_id</code>. We can see we are pointing toward the endpoint <strong>/v1/artists</strong> and using the variable <strong>art_id</strong>, which we established above to pass to the GET request. Finally, we have the familiar <strong>request.get</strong> command with the output code <code>console.log("This artist's name is: " + body.name) </code>, which will print the artist's name to the console. We end with the same code we have before, which puts the <strong>access_token</strong> back into the browser. When I run my server, navigate to <strong>localhost:3000</strong>, then clicked <strong>Login</strong> then <strong>Get Token</strong> then <strong>Run Artist API</strong> and got a result to the command prompt that looked like this:
+		</p>
+		
+		<pre><!-- results-->
+C:\nodeprojects\spot>node server.js
+Listening on 3000...
+This artist's name is: Of Monsters and Men
+		</pre>
+		<br/><!--end results-->
+		
+		<p class="lead">
+		As we can see, nothing crazy complex in the results here, but enough to know that we were able to call and access this API endpoint correctly.
+		</p>
+		
+		<p id="sect16"></p>
+		<br/><br/>
+		<h1>Get Several Artists API Endpoint</h1><br>
+		
+		<p class="lead">
+		Next, we are going to look at the process to get several artists from the API endpoint <code>/v1/artists?ids={ids}</code>. First, let's paste in our code! Paste in the code below just underneath the last callback the we worked through <code>app.get('/artist/:token',function(req,res){...</code> within the file <b>server.js</b>:
+		</p>
+		
+		<pre><!-- artist(s) code-->
+app.get('/artists/:token',function(req,res){
+	
+	//get token from request
+	var access_token = req.params.token;
+	
+	//hard-key in the artist id that we want
+	var art_id = '?ids='
+	art_id += '4dwdTW1Lfiq0cM8nBAqIIz';
+	art_id += ','
+	art_id += '6Fi8CHfO8WGtu3yO8c2Mc4'
+	
+	//set up options
+	var options = {
+		url: 'https://api.spotify.com/v1/artists/' + art_id,
+		headers: { 'Authorization': 'Bearer ' + access_token },
+		json: true
+	};
+	
+	// use the access token to access the Spotify Web API
+	request.get(options, function(error, response, body) {
+		
+		console.log(JSON.stringify(body));
+	});
+	
+	//put token back into browser
+	res.redirect('/#' +
+		querystring.stringify({
+			access_token: access_token
+	}));
+});
+		</pre>
+		<br/><!--end artist(s) code-->
+				
+		<p class="lead">
+		Notice that for the route on this code, I slightly altered the route to a from the last callback from <strong>/artist/</strong> to <strong>/artists/</strong>. Other then that subtle change, the rest of the route is exactly the same. The <strong>access_token</strong> code is also exactly the same. The <strong>art_id</strong> variable is where we split from the last section of code we had set up. As we can see instead of having just one id within the art_id variable like var <code>art_id = '4dwdTW1Lfiq0cM8nBAqIIz'</code>, we set this variable to include 2 IDs with the syntax <code>var art_id = '?ids=4dwdTW1Lfiq0cM8nBAqIIz,6Fi8CHfO8WGtu3yO8c2Mc4'</code>. Once again, I am hard-keying these IDs into the code, but in a real live application, they would be populated dynamically. The most important part of this line of code that differentiates it from the single artist is the is the string <code>?ids=</code>, which sets up the API to know that a string of one or more artist IDs are coming. From there, it is just a matter of stringing together one or more IDs using a comma in between them. 
+		</p>
+		
+		<p class="lead">
+		Next, we set up our <strong>options</strong> object, using the exact same code that we used for the single artist lookup. Finally, we get to our request call <code>request.get(options, function(error, response, body) {...</code>, which should be pretty familiar by now. For the output of this one, I elected to have the entirety of the returned body of JSON printed to console with the line of code <code>console.log(JSON.stringify(body))</code>, so that we can examine the structure of the JSON that is returned. After I save this code, run my server, navigate to <strong>localhost:3000</strong>, then clicked <strong>Login</strong> then <strong>Get Token</strong> then <strong>Run Artist(s) API</strong> and got a result to the command prompt. When I pasted that JSON string to <b>http://jsonviewer.stack.hu/</b> the results looked like this:
+		</p>
+		
+		<!--Online viewer of JSON-->
+		<img src="img03.png"></img>
+		
+		<p class="lead">
+		Here, we can see that the JSON object that was returned had one array called <strong>artists</strong>. Each element of the array had all of the same properties the we've seen in the <strong>artists</strong> object before. We can see that this array contains 2 artists. One is "Of Monsters and Men" and the other is "2Cellos". The main thing that we want to observe here is that this endpoint <code>/v1/artists?ids={ids}</code> returns an array of artists, whereas the other endpoint <code>/v1/artists/{id}</code> only returns a single artist object.
+		</p>
+				
+		<p id="sect20"></p>
+		<br/><br/>
+		<h1>Good Luck!</h1><br>
+		
+		<p class="lead">
+		Thanks for reading my tutorial! I hope that I gave you some good insights and experience using this API.
+		</p>
+
+	  </div>
+
+	</div><!-- /.container -->
+		
+  </body>
+  
+</html>
